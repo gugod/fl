@@ -37,17 +37,20 @@ sub start {
     push @filters, \&looks_like_perl if $self->{opt}{perl};
 
     my $o = {};
-    if (@filters) {
-        $o->{file_filter} = sub {
-            my $file = $_;
-            my $pass = 0;
-            for my $filter (@filters) {
-                $pass ||= $filter->($_);
-                last if $pass;
-            }
-            return $pass;
-        };
-    }
+
+    $o->{file_filter} = sub {
+        my $file = $_;
+        return 0 if $File::Next::dir =~ m{\A \.git }x;
+        return 1 unless @filters;
+
+        my $pass = 0;
+        for my $filter (@filters) {
+            $pass ||= $filter->($_);
+            last if $pass;
+        }
+        return $pass;
+    };
+
 
     my $iter = File::Next::files( $o, $self->{args}[0] // '.' );
     while ( defined ( my $file = $iter->() ) ) {
