@@ -5,6 +5,592 @@ use warnings;
 use Getopt::Long;
 use File::Next;
 use File::Basename 'basename';
+use Readonly;
+
+# rg --type-list
+Readonly::Hash my %FILE_TYPE_TO_GLOB => (
+    'nix' => [
+        '*.nix'
+    ],
+    'qmake' => [
+        '*.prf',
+        '*.pri',
+        '*.pro'
+    ],
+    'css' => [
+        '*.css',
+        '*.scss'
+    ],
+    'awk' => [
+        '*.awk'
+    ],
+    'asciidoc' => [
+        '*.adoc',
+        '*.asc',
+        '*.asciidoc'
+    ],
+    'stylus' => [
+        '*.styl'
+    ],
+    'vim' => [
+        '*.vim'
+    ],
+    'clojure' => [
+        '*.clj',
+        '*.cljc',
+        '*.cljs',
+        '*.cljx'
+    ],
+    'coffeescript' => [
+        '*.coffee'
+    ],
+    'tf' => [
+        '*.tf'
+    ],
+    'nim' => [
+        '*.nim'
+    ],
+    'elisp' => [
+        '*.el'
+    ],
+    'svg' => [
+        '*.svg'
+    ],
+    'toml' => [
+        '*.toml',
+        'Cargo.lock'
+    ],
+    'systemd' => [
+        '*.automount',
+        '*.conf',
+        '*.device',
+        '*.link',
+        '*.mount',
+        '*.path',
+        '*.scope',
+        '*.service',
+        '*.slice',
+        '*.socket',
+        '*.swap',
+        '*.target',
+        '*.timer'
+    ],
+    'jinja' => [
+        '*.j2',
+        '*.jinja',
+        '*.jinja2'
+    ],
+    'objc' => [
+        '*.h',
+        '*.m'
+    ],
+    'purs' => [
+        '*.purs'
+    ],
+    'textile' => [
+        '*.textile'
+    ],
+    'rust' => [
+        '*.rs'
+    ],
+    'cpp' => [
+        '*.C',
+        '*.H',
+        '*.cc',
+        '*.cpp',
+        '*.cxx',
+        '*.h',
+        '*.hh',
+        '*.hpp',
+        '*.hxx',
+        '*.inl'
+    ],
+    'yaml' => [
+        '*.yaml',
+        '*.yml'
+    ],
+    'fsharp' => [
+        '*.fs',
+        '*.fsi',
+        '*.fsx'
+    ],
+    'fortran' => [
+        '*.F',
+        '*.F77',
+        '*.F90',
+        '*.F95',
+        '*.f',
+        '*.f77',
+        '*.f90',
+        '*.f95',
+        '*.pfo'
+    ],
+    'fish' => [
+        '*.fish'
+    ],
+    'swig' => [
+        '*.def',
+        '*.i'
+    ],
+    'py' => [
+        '*.py'
+    ],
+    'kotlin' => [
+        '*.kt',
+        '*.kts'
+    ],
+    'ps' => [
+        '*.cdxml',
+        '*.ps1',
+        '*.ps1xml',
+        '*.psd1',
+        '*.psm1'
+    ],
+    'wiki' => [
+        '*.mediawiki',
+        '*.wiki'
+    ],
+    'html' => [
+        '*.ejs',
+        '*.htm',
+        '*.html'
+    ],
+    'csharp' => [
+        '*.cs'
+    ],
+    'json' => [
+        '*.json',
+        'composer.lock'
+    ],
+    'markdown' => [
+        '*.markdown',
+        '*.md',
+        '*.mdown',
+        '*.mkdn'
+    ],
+    'ts' => [
+        '*.ts',
+        '*.tsx'
+    ],
+    'less' => [
+        '*.less'
+    ],
+    'gzip' => [
+        '*.gz'
+    ],
+    'zsh' => [
+        '*.zsh',
+        '.zlogin',
+        '.zlogout',
+        '.zprofile',
+        '.zshenv',
+        '.zshrc',
+        'zlogin',
+        'zlogout',
+        'zprofile',
+        'zshenv',
+        'zshrc'
+    ],
+    'ruby' => [
+        '*.gemspec',
+        '*.rb',
+        '.irbrc',
+        'Gemfile',
+        'Rakefile'
+    ],
+    'jupyter' => [
+        '*.ipynb',
+        '*.jpynb'
+    ],
+    'elixir' => [
+        '*.eex',
+        '*.ex',
+        '*.exs'
+    ],
+    'log' => [
+        '*.log'
+    ],
+    'smarty' => [
+        '*.tpl'
+    ],
+    'java' => [
+        '*.java'
+    ],
+    'jl' => [
+        '*.jl'
+    ],
+    'xml' => [
+        '*.xml',
+        '*.xml.dist'
+    ],
+    'cshtml' => [
+        '*.cshtml'
+    ],
+    'asm' => [
+        '*.S',
+        '*.asm',
+        '*.s'
+    ],
+    'tex' => [
+        '*.bib',
+        '*.cls',
+        '*.ltx',
+        '*.sty',
+        '*.tex'
+    ],
+    'sql' => [
+        '*.psql',
+        '*.sql'
+    ],
+    'ml' => [
+        '*.ml'
+    ],
+    'docker' => [
+        '*Dockerfile*'
+    ],
+    'gn' => [
+        '*.gn',
+        '*.gni'
+    ],
+    'haskell' => [
+        '*.hs',
+        '*.lhs'
+    ],
+    'ceylon' => [
+        '*.ceylon'
+    ],
+    'm4' => [
+        '*.ac',
+        '*.m4'
+    ],
+    'readme' => [
+        '*README',
+        'README*'
+    ],
+    'twig' => [
+        '*.twig'
+    ],
+    'webidl' => [
+        '*.idl',
+        '*.webidl',
+        '*.widl'
+    ],
+    'sass' => [
+        '*.sass',
+        '*.scss'
+    ],
+    'sh' => [
+        '*.bash',
+        '*.bashrc',
+        '*.csh',
+        '*.cshrc',
+        '*.ksh',
+        '*.kshrc',
+        '*.sh',
+        '*.tcsh',
+        '*.zsh',
+        '.bash_login',
+        '.bash_logout',
+        '.bash_profile',
+        '.bashrc',
+        '.cshrc',
+        '.kshrc',
+        '.login',
+        '.logout',
+        '.profile',
+        '.tcshrc',
+        '.zlogin',
+        '.zlogout',
+        '.zprofile',
+        '.zshenv',
+        '.zshrc',
+        'bash_login',
+        'bash_logout',
+        'bash_profile',
+        'bashrc',
+        'profile',
+        'zlogin',
+        'zlogout',
+        'zprofile',
+        'zshenv',
+        'zshrc'
+    ],
+    'scala' => [
+        '*.scala'
+    ],
+    'bitbake' => [
+        '*.bb',
+        '*.bbappend',
+        '*.bbclass',
+        '*.conf',
+        '*.inc'
+    ],
+    'swift' => [
+        '*.swift'
+    ],
+    'yacc' => [
+        '*.y'
+    ],
+    'ocaml' => [
+        '*.ml',
+        '*.mli',
+        '*.mll',
+        '*.mly'
+    ],
+    'agda' => [
+        '*.agda',
+        '*.lagda'
+    ],
+    'lisp' => [
+        '*.el',
+        '*.jl',
+        '*.lisp',
+        '*.lsp',
+        '*.sc',
+        '*.scm'
+    ],
+    'crystal' => [
+        '*.cr',
+        'Projectfile'
+    ],
+    'taskpaper' => [
+        '*.taskpaper'
+    ],
+    'c' => [
+        '*.H',
+        '*.c',
+        '*.h'
+    ],
+    'jsonl' => [
+        '*.jsonl'
+    ],
+    'lua' => [
+        '*.lua'
+    ],
+    'sml' => [
+        '*.sig',
+        '*.sml'
+    ],
+    'cabal' => [
+        '*.cabal'
+    ],
+    'xz' => [
+        '*.xz'
+    ],
+    'dart' => [
+        '*.dart'
+    ],
+    'config' => [
+        '*.cfg',
+        '*.conf',
+        '*.config',
+        '*.ini'
+    ],
+    'tcl' => [
+        '*.tcl'
+    ],
+    'groovy' => [
+        '*.gradle',
+        '*.groovy'
+    ],
+    'cbor' => [
+        '*.cbor'
+    ],
+    'js' => [
+        '*.js',
+        '*.jsx',
+        '*.vue'
+    ],
+    'matlab' => [
+        '*.m'
+    ],
+    'elm' => [
+        '*.elm'
+    ],
+    'msbuild' => [
+        '*.csproj',
+        '*.fsproj',
+        '*.proj',
+        '*.props',
+        '*.targets',
+        '*.vcxproj'
+    ],
+    'creole' => [
+        '*.creole'
+    ],
+    'sv' => [
+        '*.h',
+        '*.sv',
+        '*.svh',
+        '*.v',
+        '*.vg'
+    ],
+    'perl' => [
+        '*.PL',
+        '*.perl',
+        '*.pl',
+        '*.plh',
+        '*.plx',
+        '*.pm',
+        '*.t'
+    ],
+    'lzma' => [
+        '*.lzma'
+    ],
+    'txt' => [
+        '*.txt'
+    ],
+    'pod' => [
+        '*.pod'
+    ],
+    'rst' => [
+        '*.rst'
+    ],
+    'vb' => [
+        '*.vb'
+    ],
+    'license' => [
+        '*[.-]LICEN[CS]E*',
+        'AGPL-*[0-9]*',
+        'APACHE-*[0-9]*',
+        'BSD-*[0-9]*',
+        'CC-BY-*',
+        'COPYING',
+        'COPYING[.-]*',
+        'COPYRIGHT',
+        'COPYRIGHT[.-]*',
+        'EULA',
+        'EULA[.-]*',
+        'GFDL-*[0-9]*',
+        'GNU-*[0-9]*',
+        'GPL-*[0-9]*',
+        'LGPL-*[0-9]*',
+        'LICEN[CS]E',
+        'LICEN[CS]E[.-]*',
+        'MIT-*[0-9]*',
+        'MPL-*[0-9]*',
+        'NOTICE',
+        'NOTICE[.-]*',
+        'OFL-*[0-9]*',
+        'PATENTS',
+        'PATENTS[.-]*',
+        'UNLICEN[CS]E',
+        'UNLICEN[CS]E[.-]*',
+        'agpl[.-]*',
+        'gpl[.-]*',
+        'lgpl[.-]*',
+        'licen[cs]e',
+        'licen[cs]e.*'
+    ],
+    'julia' => [
+        '*.jl'
+    ],
+    'man' => [
+        '*.[0-9][cEFMmpSx]',
+        '*.[0-9lnpx]'
+    ],
+    'rdoc' => [
+        '*.rdoc'
+    ],
+    'erlang' => [
+        '*.erl',
+        '*.hrl'
+    ],
+    'go' => [
+        '*.go'
+    ],
+    'cs' => [
+        '*.cs'
+    ],
+    'spark' => [
+        '*.spark'
+    ],
+    'csv' => [
+        '*.csv'
+    ],
+    'avro' => [
+        '*.avdl',
+        '*.avpr',
+        '*.avsc'
+    ],
+    'protobuf' => [
+        '*.proto'
+    ],
+    'hbs' => [
+        '*.hbs'
+    ],
+    'soy' => [
+        '*.soy'
+    ],
+    'cython' => [
+        '*.pyx'
+    ],
+    'make' => [
+        '*.mak',
+        '*.mk',
+        'GNUmakefile',
+        'Gnumakefile',
+        'Makefile',
+        'gnumakefile',
+        'makefile'
+    ],
+    'r' => [
+        '*.R',
+        '*.Rmd',
+        '*.Rnw',
+        '*.r'
+    ],
+    'objcpp' => [
+        '*.h',
+        '*.mm'
+    ],
+    'org' => [
+        '*.org'
+    ],
+    'bzip2' => [
+        '*.bz2'
+    ],
+    'vimscript' => [
+        '*.vim'
+    ],
+    'md' => [
+        '*.markdown',
+        '*.md',
+        '*.mdown',
+        '*.mkdn'
+    ],
+    'vhdl' => [
+        '*.vhd',
+        '*.vhdl'
+    ],
+    'pdf' => [
+        '*.pdf'
+    ],
+    'php' => [
+        '*.php',
+        '*.php3',
+        '*.php4',
+        '*.php5',
+        '*.phtml'
+    ],
+    'h' => [
+        '*.h',
+        '*.hpp'
+    ],
+    'vala' => [
+        '*.vala'
+    ],
+    'cmake' => [
+        '*.cmake',
+        'CMakeLists.txt'
+    ],
+    'd' => [
+        '*.d'
+    ],
+    'mk' => [
+        'mkfile'
+    ]
+);
 
 sub build_ext_filter {
     my (@ext) = @_;
@@ -45,7 +631,7 @@ sub start {
 
         my $pass = 0;
         for my $filter (@filters) {
-            $pass ||= $filter->($_);
+            $pass ||= $filter->($file);
             last if $pass;
         }
         return $pass;
@@ -83,3 +669,4 @@ sub looks_like_perl {
 
     return 0;
 }
+
