@@ -5,10 +5,9 @@ use warnings;
 use Getopt::Long;
 use File::Next;
 use File::Basename 'basename';
-use Readonly;
 
 # rg --type-list
-Readonly::Hash my %FILE_TYPE_TO_GLOB => (
+use constant FILE_TYPE_TO_GLOB => {
     'nix' => [
         '*.nix'
     ],
@@ -590,7 +589,7 @@ Readonly::Hash my %FILE_TYPE_TO_GLOB => (
     'mk' => [
         'mkfile'
     ]
-);
+};
 
 sub build_ext_filter {
     my (@ext) = @_;
