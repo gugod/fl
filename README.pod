@@ -1,0 +1,22 @@
+=head1 NAME
+
+fl -- file listing tool
+
+=head2 Description
+
+This tool can recursively list file under a dirrectory given the constraints.
+It is similar to `find . -type f`, but only easier to use.
+
+=head2 Usage
+
+List everything under current directory.
+
+    fl
+
+List all .js or .css files in the given directory
+
+    fl --ext js,css /apps/public_html/
+
+List perl  programs, modules, tests in the current directory
+
+    fl --perl
