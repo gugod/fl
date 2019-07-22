@@ -3,8 +3,12 @@ use strict;
 use warnings;
 
 use Getopt::Long;
-use File::Next;
 use File::Basename 'basename';
+
+use MCE::Loop;
+use Fcntl ':mode';
+
+my %EXCLUDES = ( '.git' => 1 );
 
 # rg --type-list
 use constant FILE_TYPE_TO_GLOB => {
@@ -604,6 +608,45 @@ sub build_ext_filter {
     }
 }
 
+sub onedir {
+    my ($x, $cb) = @_;
+    my @st;
+    return () unless opendir(my $dh, $x);
+    while (readdir($dh)) {
+        next if ($_ eq '.' || $_ eq '..');
+        my $it = $x . "/" . $_;
+
+        my $mode = (stat($it))[2] or next;
+        if (S_ISREG($mode)) {
+            $cb->($it);
+        } elsif (S_ISDIR($mode) && (! $EXCLUDES{$_}) ) {
+            push @st, $it;
+        }
+    }
+    closedir($dh);
+    return @st;
+}
+
+sub iter_files {
+    my ($start, $cb) = @_;
+    MCE::Loop::init { chunk_size => 1 };
+
+    my @st = onedir($start, $cb);
+    while(@st && @st < 5) {
+        my $x = shift(@st);
+        push @st, onedir($x, $cb);
+    }
+    if (@st) {
+        mce_loop {
+            my @s = onedir($_, $cb);
+            while(@s) {
+                my $x = shift(@s);
+                push @s, onedir($x, $cb);
+            }
+        } @st;
+    }
+}
+
 sub start {
     my ($self) = @_;
 
@@ -621,25 +664,29 @@ sub start {
 
     push @filters, \&looks_like_perl if $self->{opt}{perl};
 
-    my $o = {};
+    if (@filters) {
+        my $filter = sub {
+            my $file = $_[0];
+            my $pass = 0;
+            for my $filter (@filters) {
+                $pass ||= $filter->($file);
+                last if $pass;
+            }
+            return $pass;
+        };
 
-    $o->{file_filter} = sub {
-        my $file = $_;
-        return 0 if $File::Next::dir =~ m{\A \.git }x;
-        return 1 unless @filters;
-
-        my $pass = 0;
-        for my $filter (@filters) {
-            $pass ||= $filter->($file);
-            last if $pass;
-        }
-        return $pass;
-    };
-
-
-    my $iter = File::Next::files( $o, $self->{args}[0] // '.' );
-    while ( defined ( my $file = $iter->() ) ) {
-        print $file, "\n";
+        iter_files(
+            ($self->{args}[0] // '.'),
+            sub {
+                return unless $filter->($_[0]);
+                MCE->say( $_[0] )
+            }
+        );
+    } else {
+        iter_files(
+            ($self->{args}[0] // '.'),
+            sub { MCE->say( $_[0] ) }
+        );
     }
 }
 
@@ -668,4 +715,3 @@ sub looks_like_perl {
 
     return 0;
 }
-
