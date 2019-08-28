@@ -8,7 +8,7 @@ use File::Basename 'basename';
 use MCE::Loop;
 use Fcntl ':mode';
 
-my %EXCLUDES = ( '.git' => 1 );
+my %EXCLUDES = ( '.git' => 1, 'node_modules' => 1 );
 
 # rg --type-list
 use constant FILE_TYPE_TO_GLOB => {
