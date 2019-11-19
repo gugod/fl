@@ -595,6 +595,17 @@ use constant FILE_TYPE_TO_GLOB => {
     ]
 };
 
+sub looks_like_perl {
+    my ($file) = @_;
+    return 1 if $file =~ / \.(?: t|p[ml]|pod|comp|psgi ) $/xi;
+    return 0 if basename($file) =~ / \. /xi;
+    if (open my $fh, '<', $file) {
+        read($fh, my $front, 256);
+        return 1 if $front && $front =~ m{^#!.*perl};
+    }
+    return 0;
+}
+
 sub build_ext_filter {
     my (@ext) = @_;
     return sub {
@@ -702,16 +713,3 @@ sub MAIN {
     (bless { opt => \%opt, args => [@ARGV] }, __PACKAGE__)->start();
 }
 MAIN(@ARGV);
-
-sub looks_like_perl {
-    my ($file) = @_;
-    return 1 if $file =~ / \.(?: t|p[ml]|pod|comp|psgi ) $/xi;
-    return 0 if basename($file) =~ / \. /xi;
-
-    if (open my $fh, '<', $file) {
-        read($fh, my $front, 256);
-        return 1 if $front && $front =~ m{^#!.*perl};
-    }
-
-    return 0;
-}
