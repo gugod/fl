@@ -11,447 +11,108 @@ use Fcntl ':mode';
 my %EXCLUDES = ( '.git' => 1 );
 
 # rg --type-list
-use constant FILE_TYPE_TO_GLOB => {
-    'nix' => [
-        '*.nix'
-    ],
-    'qmake' => [
-        '*.prf',
-        '*.pri',
-        '*.pro'
-    ],
-    'css' => [
-        '*.css',
-        '*.scss'
-    ],
-    'awk' => [
-        '*.awk'
-    ],
-    'asciidoc' => [
-        '*.adoc',
-        '*.asc',
-        '*.asciidoc'
-    ],
-    'stylus' => [
-        '*.styl'
-    ],
-    'vim' => [
-        '*.vim'
-    ],
-    'clojure' => [
-        '*.clj',
-        '*.cljc',
-        '*.cljs',
-        '*.cljx'
-    ],
-    'coffeescript' => [
-        '*.coffee'
-    ],
-    'tf' => [
-        '*.tf'
-    ],
-    'nim' => [
-        '*.nim'
-    ],
-    'elisp' => [
-        '*.el'
-    ],
-    'svg' => [
-        '*.svg'
-    ],
-    'toml' => [
-        '*.toml',
-        'Cargo.lock'
-    ],
-    'systemd' => [
-        '*.automount',
-        '*.conf',
-        '*.device',
-        '*.link',
-        '*.mount',
-        '*.path',
-        '*.scope',
-        '*.service',
-        '*.slice',
-        '*.socket',
-        '*.swap',
-        '*.target',
-        '*.timer'
-    ],
-    'jinja' => [
-        '*.j2',
-        '*.jinja',
-        '*.jinja2'
-    ],
-    'objc' => [
-        '*.h',
-        '*.m'
-    ],
-    'purs' => [
-        '*.purs'
-    ],
-    'textile' => [
-        '*.textile'
-    ],
-    'rust' => [
-        '*.rs'
-    ],
-    'cpp' => [
-        '*.C',
-        '*.H',
-        '*.cc',
-        '*.cpp',
-        '*.cxx',
-        '*.h',
-        '*.hh',
-        '*.hpp',
-        '*.hxx',
-        '*.inl'
-    ],
-    'yaml' => [
-        '*.yaml',
-        '*.yml'
-    ],
-    'fsharp' => [
-        '*.fs',
-        '*.fsi',
-        '*.fsx'
-    ],
-    'fortran' => [
-        '*.F',
-        '*.F77',
-        '*.F90',
-        '*.F95',
-        '*.f',
-        '*.f77',
-        '*.f90',
-        '*.f95',
-        '*.pfo'
-    ],
-    'fish' => [
-        '*.fish'
-    ],
-    'swig' => [
-        '*.def',
-        '*.i'
-    ],
-    'py' => [
-        '*.py'
-    ],
-    'kotlin' => [
-        '*.kt',
-        '*.kts'
-    ],
-    'ps' => [
-        '*.cdxml',
-        '*.ps1',
-        '*.ps1xml',
-        '*.psd1',
-        '*.psm1'
-    ],
-    'wiki' => [
-        '*.mediawiki',
-        '*.wiki'
-    ],
-    'html' => [
-        '*.ejs',
-        '*.htm',
-        '*.html'
-    ],
-    'csharp' => [
-        '*.cs'
-    ],
-    'json' => [
-        '*.json',
-        'composer.lock'
-    ],
-    'markdown' => [
-        '*.markdown',
-        '*.md',
-        '*.mdown',
-        '*.mkdn'
-    ],
-    'ts' => [
-        '*.ts',
-        '*.tsx'
-    ],
-    'less' => [
-        '*.less'
-    ],
-    'gzip' => [
-        '*.gz'
-    ],
-    'zsh' => [
-        '*.zsh',
-        '.zlogin',
-        '.zlogout',
-        '.zprofile',
-        '.zshenv',
-        '.zshrc',
-        'zlogin',
-        'zlogout',
-        'zprofile',
-        'zshenv',
-        'zshrc'
-    ],
-    'ruby' => [
-        '*.gemspec',
-        '*.rb',
-        '.irbrc',
-        'Gemfile',
-        'Rakefile'
-    ],
-    'jupyter' => [
-        '*.ipynb',
-        '*.jpynb'
-    ],
-    'elixir' => [
-        '*.eex',
-        '*.ex',
-        '*.exs'
-    ],
-    'log' => [
-        '*.log'
-    ],
-    'smarty' => [
-        '*.tpl'
-    ],
-    'java' => [
-        '*.java'
-    ],
-    'jl' => [
-        '*.jl'
-    ],
-    'xml' => [
-        '*.xml',
-        '*.xml.dist'
-    ],
-    'cshtml' => [
-        '*.cshtml'
-    ],
-    'asm' => [
-        '*.S',
-        '*.asm',
-        '*.s'
-    ],
-    'tex' => [
-        '*.bib',
-        '*.cls',
-        '*.ltx',
-        '*.sty',
-        '*.tex'
-    ],
-    'sql' => [
-        '*.psql',
-        '*.sql'
-    ],
-    'ml' => [
-        '*.ml'
-    ],
-    'docker' => [
-        '*Dockerfile*'
-    ],
-    'gn' => [
-        '*.gn',
-        '*.gni'
-    ],
-    'haskell' => [
-        '*.hs',
-        '*.lhs'
-    ],
-    'ceylon' => [
-        '*.ceylon'
-    ],
-    'm4' => [
-        '*.ac',
-        '*.m4'
-    ],
-    'readme' => [
-        '*README',
-        'README*'
-    ],
-    'twig' => [
-        '*.twig'
-    ],
-    'webidl' => [
-        '*.idl',
-        '*.webidl',
-        '*.widl'
-    ],
-    'sass' => [
-        '*.sass',
-        '*.scss'
-    ],
-    'sh' => [
-        '*.bash',
-        '*.bashrc',
-        '*.csh',
-        '*.cshrc',
-        '*.ksh',
-        '*.kshrc',
-        '*.sh',
-        '*.tcsh',
-        '*.zsh',
-        '.bash_login',
-        '.bash_logout',
-        '.bash_profile',
-        '.bashrc',
-        '.cshrc',
-        '.kshrc',
-        '.login',
-        '.logout',
-        '.profile',
-        '.tcshrc',
-        '.zlogin',
-        '.zlogout',
-        '.zprofile',
-        '.zshenv',
-        '.zshrc',
-        'bash_login',
-        'bash_logout',
-        'bash_profile',
-        'bashrc',
-        'profile',
-        'zlogin',
-        'zlogout',
-        'zprofile',
-        'zshenv',
-        'zshrc'
-    ],
-    'scala' => [
-        '*.scala'
-    ],
-    'bitbake' => [
-        '*.bb',
-        '*.bbappend',
-        '*.bbclass',
-        '*.conf',
-        '*.inc'
-    ],
-    'swift' => [
-        '*.swift'
-    ],
-    'yacc' => [
-        '*.y'
-    ],
-    'ocaml' => [
-        '*.ml',
-        '*.mli',
-        '*.mll',
-        '*.mly'
-    ],
-    'agda' => [
-        '*.agda',
-        '*.lagda'
-    ],
-    'lisp' => [
-        '*.el',
-        '*.jl',
-        '*.lisp',
-        '*.lsp',
-        '*.sc',
-        '*.scm'
-    ],
-    'crystal' => [
-        '*.cr',
-        'Projectfile'
-    ],
-    'taskpaper' => [
-        '*.taskpaper'
-    ],
-    'c' => [
-        '*.H',
-        '*.c',
-        '*.h'
-    ],
-    'jsonl' => [
-        '*.jsonl'
-    ],
-    'lua' => [
-        '*.lua'
-    ],
-    'sml' => [
-        '*.sig',
-        '*.sml'
-    ],
-    'cabal' => [
-        '*.cabal'
-    ],
-    'xz' => [
-        '*.xz'
-    ],
-    'dart' => [
-        '*.dart'
-    ],
-    'config' => [
-        '*.cfg',
-        '*.conf',
-        '*.config',
-        '*.ini'
-    ],
-    'tcl' => [
-        '*.tcl'
-    ],
-    'groovy' => [
-        '*.gradle',
-        '*.groovy'
-    ],
-    'cbor' => [
-        '*.cbor'
-    ],
-    'js' => [
-        '*.js',
-        '*.jsx',
-        '*.vue'
-    ],
-    'matlab' => [
-        '*.m'
-    ],
-    'elm' => [
-        '*.elm'
-    ],
-    'msbuild' => [
-        '*.csproj',
-        '*.fsproj',
-        '*.proj',
-        '*.props',
-        '*.targets',
-        '*.vcxproj'
-    ],
-    'creole' => [
-        '*.creole'
-    ],
-    'sv' => [
-        '*.h',
-        '*.sv',
-        '*.svh',
-        '*.v',
-        '*.vg'
-    ],
-    'perl' => [
-        '*.PL',
-        '*.perl',
-        '*.pl',
-        '*.plh',
-        '*.plx',
-        '*.pm',
-        '*.t'
-    ],
-    'lzma' => [
-        '*.lzma'
-    ],
-    'txt' => [
-        '*.txt'
-    ],
-    'pod' => [
-        '*.pod'
-    ],
-    'rst' => [
-        '*.rst'
-    ],
-    'vb' => [
-        '*.vb'
-    ],
+use constant FILE_TYPE_TO_REGEX => {
+    'docker' => qr/\*Dockerfile\*/u,
+    'cabal' => qr/.*\.(?:cabal)/u,
+    'webidl' => qr/.*\.(?:idl|webidl|widl)/u,
+    'creole' => qr/.*\.(?:creole)/u,
+    'd' => qr/.*\.(?:d)/u,
+    'java' => qr/.*\.(?:java)/u,
+    'gn' => qr/.*\.(?:gn|gni)/u,
+    'purs' => qr/.*\.(?:purs)/u,
+    'cmake' => qr/(?: CMakeLists\.txt | .*\.cmake )/x,
+    'asciidoc' => qr/.* \. (?: adoc|asc|asciidoc ) /ux,
+    'elixir' => qr/.*\.(?:eex|ex|exs)/u,
+    'vhdl' => qr/.*\.(?:vhd|vhdl)/u,
+    'pod' => qr/.*\.(?:pod)/u,
+    'sass' => qr/.*\.(?:sass|scss)/u,
+    'xml' => qr/.*\.(?:xml|xml.dist)/u,
+    'markdown' => qr/.* \. (?: markdown|md|mdown|mkdn) /ux,
+    'erlang' => qr/.*\.(?:erl|hrl)/u,
+    'textile' => qr/.*\.(?:textile)/u,
+    'm4' => qr/.*\.(?:ac|m4)/u,
+    'sh' => qr/(?:
+        .*\. (?: bash | bashrc | csh | cshrc | ksh | kshrc | sh | tcsh | zsh )
+        | \.bash_login
+        | \.bash_logout
+        | \.bash_profile
+        | \.bashrc
+        | \.cshrc
+        | \.kshrc
+        | \.login
+        | \.logout
+        | \.profile
+        | \.tcshrc
+        | \.zlogin
+        | \.zlogout
+        | \.zprofile
+        | \.zshenv
+        | \.zshrc
+        | bash_login
+        | bash_logout
+        | bash_profile
+        | bashrc
+        | profile
+        | zlogin
+        | zlogout
+        | zprofile
+        | zshenv
+        | zshrc
+    )/x,
+    'jsonl' => qr/.*\.(?:jsonl)/u,
+    'ceylon' => qr/.*\.(?:ceylon)/u,
+    'vimscript' => qr/.*\.(?:vim)/u,
+    'cpp' => qr/.*\.(?:C|H|cc|cpp|cxx|h|hh|hpp|hxx|inl)/u,
+    'csharp' => qr/.*\.(?:cs)/u,
+    'ml' => qr/.*\.(?:ml)/u,
+    'fish' => qr/.*\.(?:fish)/u,
+    'coffeescript' => qr/.*\.(?:coffee)/u,
+    'ts' => qr/.*\.(ts|tsx)/,
+    'crystal' => qr/(?: Projectfile| .*\.cr)/x,
+    'awk' => qr/.* \.awk /ux,
+    'css' => qr/.* \.(?: css|scss) /ux,
+    'smarty' => qr/.*\.(?:tpl)/u,
+    'vala' => qr/.*\.(?:vala)/u,
+    'elisp' => qr/.*\.(?:el)/u,
+    'h' => qr/.*\.(?:h|hpp)/u,
+    'rust' => qr/.*\.(?:rs)/u,
+    'less' => qr/.*\.(?:less)/u,
+    'taskpaper' => qr/.*\.(?:taskpaper)/u,
+    'systemd' => qr/.*\.(?:automount|conf|device|link|mount|path|scope|service|slice|socket|swap|target|timer)/u,
+    'json' => qr/(?: composer\.lock | .*\.json )/x,
+    'jinja' => qr/.*\.(?:j2|jinja|jinja2)/u,
+    'html' => qr/.*\.(?:ejs|htm|html)/u,
+    'vim' => qr/.* \. vim /ux,
+    'fortran' => qr/.*\.(?:F|F77|F90|F95|f|f77|f90|f95|pfo)/u,
+    'msbuild' => qr/.*\.(?:csproj|fsproj|proj|props|targets|vcxproj)/u,
+    'hbs' => qr/.*\.(?:hbs)/u,
+    'nim' => qr/.*\.(?:nim)/u,
+    'yacc' => qr/.*\.(?:y)/u,
+    'wiki' => qr/.*\.(?:mediawiki|wiki)/u,
+    'jl' => qr/.*\.(?:jl)/u,
+    'gzip' => qr/.*\.(?:gz)/u,
+    'jupyter' => qr/.* \. (?: ipynb|jpynb ) /ux,
+    'rdoc' => qr/.*\.(?:rdoc)/u,
+    'go' => qr/.*\.(?:go)/u,
+    'log' => qr/.*\.(?:log)/u,
+    'ps' => qr/.*\.(?:cdxml|ps1|ps1xml|psd1|psm1)/u,
+    'ruby' => qr/ Gemfile | Rakefile | .* \. (?: gemspec|rb|irbrc ) /ux,
+    'toml' => qr/ Cargo\.lock | .*\.toml /x,
+    'spark' => qr/.*\.(?:spark)/u,
+    'cs' => qr/.*\.(?:cs)/u,
+    'org' => qr/.*\.(?:org)/u,
+    'elm' => qr/.*\.(?:elm)/u,
+    'vb' => qr/.*\.(?:vb)/u,
+    'sv' => qr/.*\.(?:h|sv|svh|v|vg)/u,
+    'lua' => qr/.*\.(?:lua)/u,
+    'stylus' => qr/.* \. styl /ux,
+    'js' => qr/.*\.(?:js|jsx|vue)/u,
+    'scala' => qr/.*\.(?:scala)/u,
+    'cshtml' => qr/.*\.(?:cshtml)/u,
+    'protobuf' => qr/.*\.(?:proto)/u,
+    'qmake' => qr/.* \.(?: prf|pri|pro) /ux,
+    'kotlin' => qr/.*\.(?:kt|kts)/u,
+    'ocaml' => qr/.*\.(?:ml|mli|mll|mly)/u,
     'license' => [
         '*[.-]LICEN[CS]E*',
         'AGPL-*[0-9]*',
@@ -485,114 +146,53 @@ use constant FILE_TYPE_TO_GLOB => {
         'licen[cs]e',
         'licen[cs]e.*'
     ],
-    'julia' => [
-        '*.jl'
-    ],
-    'man' => [
-        '*.[0-9][cEFMmpSx]',
-        '*.[0-9lnpx]'
-    ],
-    'rdoc' => [
-        '*.rdoc'
-    ],
-    'erlang' => [
-        '*.erl',
-        '*.hrl'
-    ],
-    'go' => [
-        '*.go'
-    ],
-    'cs' => [
-        '*.cs'
-    ],
-    'spark' => [
-        '*.spark'
-    ],
-    'csv' => [
-        '*.csv'
-    ],
-    'avro' => [
-        '*.avdl',
-        '*.avpr',
-        '*.avsc'
-    ],
-    'protobuf' => [
-        '*.proto'
-    ],
-    'hbs' => [
-        '*.hbs'
-    ],
-    'soy' => [
-        '*.soy'
-    ],
-    'cython' => [
-        '*.pyx'
-    ],
-    'make' => [
-        '*.mak',
-        '*.mk',
-        'GNUmakefile',
-        'Gnumakefile',
-        'Makefile',
-        'gnumakefile',
-        'makefile'
-    ],
-    'r' => [
-        '*.R',
-        '*.Rmd',
-        '*.Rnw',
-        '*.r'
-    ],
-    'objcpp' => [
-        '*.h',
-        '*.mm'
-    ],
-    'org' => [
-        '*.org'
-    ],
-    'bzip2' => [
-        '*.bz2'
-    ],
-    'vimscript' => [
-        '*.vim'
-    ],
-    'md' => [
-        '*.markdown',
-        '*.md',
-        '*.mdown',
-        '*.mkdn'
-    ],
-    'vhdl' => [
-        '*.vhd',
-        '*.vhdl'
-    ],
-    'pdf' => [
-        '*.pdf'
-    ],
-    'php' => [
-        '*.php',
-        '*.php3',
-        '*.php4',
-        '*.php5',
-        '*.phtml'
-    ],
-    'h' => [
-        '*.h',
-        '*.hpp'
-    ],
-    'vala' => [
-        '*.vala'
-    ],
-    'cmake' => [
-        '*.cmake',
-        'CMakeLists.txt'
-    ],
-    'd' => [
-        '*.d'
-    ],
-    'mk' => [
-        'mkfile'
-    ]
+    'rst' => qr/.*\.(?:rst)/u,
+    'nix' => qr/.* \. nix/ux,
+    'sql' => qr/.*\.(?:psql|sql)/u,
+    'sml' => qr/.*\.(?:sig|sml)/u,
+    'cython' => qr/.*\.(?:pyx)/u,
+    'objc' => qr/.*\.(?:h|m)/u,
+    'lzma' => qr/.*\.(?:lzma)/u,
+    'agda' => qr/.*\.(?:agda|lagda)/u,
+    'svg' => qr/.*\.(?:svg)/u,
+    'swig' => qr/.*\.(?:def|i)/u,
+    'md' => qr/.*\.(?:markdown|md|mdown|mkdn)/u,
+    'objcpp' => qr/.*\.(?:h|mm)/u,
+    'cbor' => qr/.*\.(?:cbor)/u,
+    'tcl' => qr/.*\.(?:tcl)/u,
+    'twig' => qr/.*\.(?:twig)/u,
+    'csv' => qr/.*\.(?:csv)/u,
+    'fsharp' => qr/.*\.(?:fs|fsi|fsx)/u,
+    'perl' => qr/.*\.(?:PL|perl|pl|plh|plx|pm|t)/u,
+    'py' => qr/.*\.(?:py)/u,
+    'r' => qr/.*\.(?:R|Rmd|Rnw|r)/u,
+    'tex' => qr/.*\.(?:bib|cls|ltx|sty|tex)/u,
+    'txt' => qr/.*\.(?:txt)/u,
+    'mk' => qr/mkfile/u,
+    'xz' => qr/.*\.(?:xz)/u,
+    'clojure' => qr/.*\.(?:clj|cljc|cljs|cljx)/u,
+    'c' => qr/.*\.(?:H|c|h)/u,
+    'dart' => qr/.*\.(?:dart)/u,
+    'asm' => qr/.*\.(?:S|asm|s)/u,
+    'tf' => qr/.*\.(?:tf)/u,
+    'php' => qr/.*\.(?:php|php3|php4|php5|phtml)/u,
+    'pdf' => qr/.*\.(?:pdf)/u,
+    'make' => qr/(?: GNUmakefile | Gnumakefile | Makefile | gnumakefile | makefile | .*\. (mak|mk) )/x,
+    'matlab' => qr/.*\.(?:m)/u,
+    'bzip2' => qr/.*\.(?:bz2)/u,
+    'groovy' => qr/.*\.(?:gradle|groovy)/u,
+    'readme' => qr/(?: .*README | README.* )/x,
+    'soy' => qr/.*\.(?:soy)/u,
+    'julia' => qr/.*\.(?:jl)/u,
+    'haskell' => qr/.*\.(?:hs|lhs)/u,
+    'avro' => qr/.*\.(?:avdl|avpr|avsc)/u,
+    'swift' => qr/.*\.(?:swift)/u,
+    'bitbake' => qr/.*\.(?:bb|bbappend|bbclass|conf|inc)/u,
+    'yaml' => qr/.*\.(?:yaml|yml)/u,
+    'zsh' => qr/(?: \.? (?: zlogin|zlogout|zprofile|zshenv|zshrc) | .*\.zsh )/ux,
+    'config' => qr/.*\.(?:cfg|conf|config|ini)/u,
+    'lisp' => qr/.*\.(?:el|jl|lisp|lsp|sc|scm)/u,
+    'man' => qr/.*\.(?:[0-9][cEFMmpSx]|[0-9lnpx])/u
 };
 
 sub build_ext_filter {
@@ -664,6 +264,19 @@ sub start {
 
     push @filters, \&looks_like_perl if $self->{opt}{perl};
 
+    if (defined($self->{opt}{type})) {
+        if (my $regex = FILE_TYPE_TO_REGEX->{ $self->{opt}{type} }) {
+            push @filters, sub {
+                my ($path) = @_;
+                my ($file) = $path =~ m{/([^/]+)\z};
+                return 1 if $file =~ m{^(?:$regex)\z}o;
+                return 0;
+            };
+        } else {
+            die 'Unknown type: ' . $self->{opt}{type} . "\n";
+        }
+    }
+
     if (@filters) {
         my $filter = sub {
             my $file = $_[0];
@@ -697,6 +310,7 @@ sub MAIN {
         \%opt,
         "perl",
         "ext=s@",
+        "type|t=s",
     );
 
     (bless { opt => \%opt, args => [@ARGV] }, __PACKAGE__)->start();
