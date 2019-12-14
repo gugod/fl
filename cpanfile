@@ -1,1 +1,1 @@
-requires 'File::Next';
+requires 'MCE';
